@@ -1,0 +1,90 @@
+# StreamLoRA configuration.
+#
+# Every value here has a default in streamlora/config.py; this file only needs
+# the ones you want to change. The full resolved config is stored with every
+# experiment report, so a result can always be traced back to its inputs.
+#
+#   streamlora --config configs/example.toml serve
+#
+# Any value can also be overridden on the command line:
+#
+#   streamlora --set forecast.horizons_s=60,300,900 replay scenario:idle_to_build
+
+[general]
+data_dir = "data"
+log_level = "info"
+log_format = "human"     # "json" for machine-readable operational logs
+seed = 1337
+
+[collect]
+interval_s = 5.0         # fast enough that a build ramp is several samples wide,
+                         # slow enough that a ~45 ms tick is under 1% of a core
+write_batch = 6          # samples buffered per SQLite transaction
+process_attribution = true   # aggregate category shares only; never process names
+
+[features]
+window_s = 300.0
+lags_s = [0.0, 15.0, 30.0, 60.0, 120.0, 300.0]
+agg_spans_s = [30.0, 120.0, 300.0]
+time_of_day = true
+regime_features = true
+min_coverage = 0.5
+
+[forecast]
+targets = ["cpu.util_pct", "mem.used_pct", "battery.percent"]
+horizons_s = [300.0, 900.0, 1800.0]
+model = "rls"            # "static" freezes the model after its initial fit
+ridge_lambda = 10.0
+forgetting = 0.999       # ~83 minutes of effective memory at a 5 s cadence
+standardize_warmup = 120
+trust_k = 3.0            # smaller shrinks harder on unfamiliar inputs
+trust_region_scope = "all"
+baseline_features = true # baselines as model inputs: w=0 reproduces persistence
+baselines = ["persistence", "moving_average", "ewma", "linear_trend"]
+
+[uncertainty]
+method = "conformal"
+alpha = 0.1              # nominal 90% intervals
+window = 400
+step = 0.02
+min_residuals = 30       # no interval at all before this many
+
+[drift]
+enabled = true
+ph_delta = 0.5           # ignore shifts under half a standard deviation
+ph_threshold = 25.0
+adwin_delta = 0.002
+feature_threshold = 4.0
+cooldown_s = 300.0       # one regime change trips several detectors
+
+[adapt]
+enabled = true
+policies = ["periodic_samples", "drift"]
+every_n_samples = 240
+gate_enabled = true
+gate_window = 120
+gate_tolerance = 0.0     # see docs/experiments.md: 0.02 compounds to ~50x
+gate_min_samples = 60
+recency_buffer = 600
+reservoir_buffer = 1200  # guards against catastrophic forgetting
+reservoir_fraction = 0.25
+keep_versions = 10
+
+[regime]
+enabled = true
+hysteresis = 3           # consecutive samples before the label switches
+
+[language]
+backend = "template"     # "hf" for the local model; "template" needs no model
+model_id = "HuggingFaceTB/SmolLM2-135M-Instruct"
+device = "auto"
+lora_r = 16
+lora_alpha = 32
+epochs = 2
+min_examples = 24
+allow_remote = false     # telemetry never leaves the machine
+
+[api]
+host = "127.0.0.1"
+port = 8765
+default_window_s = 3600.0

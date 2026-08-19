@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streamlora"
+version = "0.1.0"
+description = "Continuous learning and forecasting system for personal computer telemetry"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Nikhil Pawar" }]
+dependencies = [
+  "psutil>=5.9",
+  "numpy>=1.24",
+  "fastapi>=0.110",
+  "uvicorn>=0.27",
+]
+
+[project.optional-dependencies]
+# The LoRA language layer is deliberately optional. The forecasting pipeline,
+# evaluation, drift detection, adaptation and API all run without it.
+lora = [
+  "torch>=2.2",
+  "transformers>=4.40",
+  "peft>=0.10",
+  "accelerate>=0.29",
+]
+dev = [
+  "pytest>=8.0",
+  "httpx>=0.27",
+]
+
+[project.scripts]
+streamlora = "streamlora.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["streamlora*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+markers = [
+  "slow: long-running tests",
+  "lora: requires the optional torch/peft extra",
+]

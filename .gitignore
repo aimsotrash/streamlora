@@ -1,0 +1,12 @@
+data/
+*.egg-info/
+logs/
+models/
+*.pyc
+__pycache__/
+.pytest_cache/
+runs/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.venv/
