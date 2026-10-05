@@ -2,6 +2,13 @@
 
 A continuous learning and forecasting system for personal computer telemetry.
 
+> [!NOTE]
+> **Work in progress.** StreamLoRA runs end to end today: collection, forecasting, drift
+> detection, gated adaptation with rollback, the dashboard and the grounded language layer.
+> It isn't finished, though. There is still work to do, and the real-telemetry results rest on
+> 3.3 hours of data from one machine. [Limitations](#limitations) lists what the current
+> results do and don't support.
+
 StreamLoRA samples your laptop's sensors, learns how *your* machine behaves,
 predicts what it will do next, measures whether those predictions were any good,
 notices when the machine starts behaving differently, and updates itself
@@ -149,7 +156,7 @@ production, and was reverted automatically.
 ## Quick start
 
 ```bash
-git clone <this repo> && cd streamlora
+git clone https://github.com/aimsotrash/streamlora.git && cd streamlora
 python3 -m venv .venv && .venv/bin/pip install -e '.[dev]'
 
 .venv/bin/streamlora doctor      # what can this machine actually measure?
