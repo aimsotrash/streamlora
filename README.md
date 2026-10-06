@@ -1,5 +1,7 @@
 # StreamLoRA
 
+[![CI](https://github.com/aimsotrash/streamlora/actions/workflows/ci.yml/badge.svg)](https://github.com/aimsotrash/streamlora/actions/workflows/ci.yml)
+
 A continuous learning and forecasting system for personal computer telemetry.
 
 > [!NOTE]
